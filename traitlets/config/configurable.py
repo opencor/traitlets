@@ -13,6 +13,10 @@ from .loader import Config, LazyConfigValue, _is_section_key
 from traitlets.traitlets import HasTraits, Instance, observe, observe_compat, default
 from ipython_genutils.text import indent, dedent, wrap_paragraphs
 
+try:
+    from PythonQt.QtCore import QObject as PythonQt_QObject
+except(ImportError):
+    PythonQt_QObject = None
 
 #-----------------------------------------------------------------------------
 # Helper classes for Configurables
@@ -65,7 +69,10 @@ class Configurable(HasTraits):
             # config is implied from parent
             if kwargs.get('config', None) is None:
                 kwargs['config'] = parent.config
-            self.parent = parent
+            if PythonQt_QObject and isinstance(self, PythonQt_QObject):
+                self.setParent(parent)
+            else:
+                self.parent = parent
 
         config = kwargs.pop('config', None)
 
